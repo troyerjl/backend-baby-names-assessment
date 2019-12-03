@@ -45,9 +45,30 @@ def extract_names(filename):
     with the year string followed by the name-rank strings in alphabetical order.
     ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
     """
-    names = []
+    with open(filename) as f:
+        open_file = f.read()
+    year_codex = r'Popularity\sin\s(\d\d\d\d)'
+    year = re.findall(year_codex, open_file)
+    # print(year[0])
+    names_codex = r'<td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>'
+    names_found = re.findall(names_codex, open_file)
+    # print(names)
+    names = [year[0]]
+    names_dict = {}
+    for rank, boy_name, girl_name in names_found:
+        boy_entry = boy_name + " " + rank
+        girl_entry = girl_name + " " + rank
+        names.append(boy_entry)
+        names.append(girl_entry)
+        names_dict.setdefault(rank, (boy_name, girl_name))
+        # print(rank, boy_name, girl_name)
+    alpha_names = sorted(names)
+    # print(alpha_names)
+    # print(names_dict)
+    text = '\n'.join(alpha_names) + '\n'
+    print(text)
     # +++your code here+++
-    return names
+    return text
 
 
 def create_parser():
@@ -66,15 +87,18 @@ def main(args):
     parser = create_parser()
     # Run the parser to collect command-line arguments into a NAMESPACE called 'ns'
     ns = parser.parse_args(args)
-
     if not ns:
         parser.print_usage()
         sys.exit(1)
 
     file_list = ns.files
-
+    for file_ in file_list:
+        text = extract_names(file_)
+        
     # option flag
     create_summary = ns.summaryfile
+    with open("baby{}.html.summary".format(text[0:5]), "w") as f:
+        f.write(text)
 
     # For each filename, call `extract_names` with that single file.
     # Format the resulting list a vertical list (separated by newline \n)
