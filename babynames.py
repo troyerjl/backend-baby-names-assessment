@@ -49,10 +49,10 @@ def extract_names(filename):
         open_file = f.read()
     year_codex = r'Popularity\sin\s(\d\d\d\d)'
     year = re.findall(year_codex, open_file)
-    # print(year[0])
+    print(year[0])
     names_codex = r'<td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>'
     names_found = re.findall(names_codex, open_file)
-    # print(names)
+    print(names_found)
     names = [year[0]]
     names_dict = {}
     for rank, boy_name, girl_name in names_found:
@@ -63,11 +63,10 @@ def extract_names(filename):
         names_dict.setdefault(rank, (boy_name, girl_name))
         # print(rank, boy_name, girl_name)
     alpha_names = sorted(names)
-    # print(alpha_names)
-    # print(names_dict)
+    print(alpha_names)
+    print(names_dict)
     text = '\n'.join(alpha_names) + '\n'
     print(text)
-    # +++your code here+++
     return text
 
 
@@ -82,6 +81,12 @@ def create_parser():
     return parser
 
 
+def summary(text, filename):
+    with open(filename, "w+") as file:
+        for name in text:
+            file.write(name + "\n")
+
+
 def main(args):
     # Create a command-line parser object with parsing rules
     parser = create_parser()
@@ -92,13 +97,13 @@ def main(args):
         sys.exit(1)
 
     file_list = ns.files
+    create_summary = ns.summaryfile
     for file_ in file_list:
         text = extract_names(file_)
-        
-    # option flag
-    create_summary = ns.summaryfile
-    with open("baby{}.html.summary".format(text[0:5]), "w") as f:
-        f.write(text)
+        if create_summary:
+            summary(text, file_ + ".summary")
+        else:
+            print('\n'.join(text))
 
     # For each filename, call `extract_names` with that single file.
     # Format the resulting list a vertical list (separated by newline \n)
