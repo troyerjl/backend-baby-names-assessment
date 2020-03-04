@@ -10,6 +10,8 @@
 # Google's Python Class
 # http://code.google.com/edu/languages/google-python-class/
 
+__author__ = "troyerjl2011 and Janell.Huyck"
+
 import sys
 import re
 import argparse
@@ -45,29 +47,34 @@ def extract_names(filename):
     with the year string followed by the name-rank strings in alphabetical order.
     ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
     """
-    with open(filename) as f:
-        open_file = f.read()
-    year_codex = r'Popularity\sin\s(\d\d\d\d)'
-    year = re.findall(year_codex, open_file)
-    print(year[0])
+    names = []
+    open_file = read_file(filename)
+    pop_codex = r'Popularity\sin\s(\d\d\d\d)'
+    name_year = str(
+        re.search(pop_codex, open_file).group(1))
+    names_dict = extract_name_dict(open_file)
+    print(names_dict)
+    names.append(name_year)
+    for name in sorted(names_dict):
+        name_pair = f"{name} {names_dict[name]}"
+        names.append(name_pair)
+    return names
+
+
+def extract_name_dict(open_file):
     names_codex = r'<td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>'
     names_found = re.findall(names_codex, open_file)
-    print(names_found)
-    names = [year[0]]
     names_dict = {}
     for rank, boy_name, girl_name in names_found:
-        boy_entry = boy_name + " " + rank
-        girl_entry = girl_name + " " + rank
-        names.append(boy_entry)
-        names.append(girl_entry)
         names_dict.setdefault(rank, (boy_name, girl_name))
         # print(rank, boy_name, girl_name)
-    alpha_names = sorted(names)
-    print(alpha_names)
-    print(names_dict)
-    text = '\n'.join(alpha_names) + '\n'
-    print(text)
-    return text
+    return names_dict
+
+
+def read_file(filename):
+    with open(filename) as f:
+        open_file = f.read()
+    return open_file
 
 
 def create_parser():
