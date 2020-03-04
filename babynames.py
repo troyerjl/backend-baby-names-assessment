@@ -10,6 +10,8 @@
 # Google's Python Class
 # http://code.google.com/edu/languages/google-python-class/
 
+__author__ = "troyerjl2011 and Janell.Huyck"
+
 import sys
 import re
 import argparse
@@ -46,8 +48,33 @@ def extract_names(filename):
     ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
     """
     names = []
-    # +++your code here+++
+    open_file = read_file(filename)
+    pop_codex = r'Popularity\sin\s(\d\d\d\d)'
+    name_year = str(
+        re.search(pop_codex, open_file).group(1))
+    names_dict = extract_name_dict(open_file)
+    print(names_dict)
+    names.append(name_year)
+    for name in sorted(names_dict):
+        name_pair = f"{name} {names_dict[name]}"
+        names.append(name_pair)
     return names
+
+
+def extract_name_dict(open_file):
+    names_codex = r'<td>(\d+)</td><td>(\w+)</td><td>(\w+)</td>'
+    names_found = re.findall(names_codex, open_file)
+    names_dict = {}
+    for rank, boy_name, girl_name in names_found:
+        names_dict.setdefault(rank, (boy_name, girl_name))
+        # print(rank, boy_name, girl_name)
+    return names_dict
+
+
+def read_file(filename):
+    with open(filename) as f:
+        open_file = f.read()
+    return open_file
 
 
 def create_parser():
@@ -61,20 +88,29 @@ def create_parser():
     return parser
 
 
+def summary(text, filename):
+    with open(filename, "w+") as file:
+        for name in text:
+            file.write(name + "\n")
+
+
 def main(args):
     # Create a command-line parser object with parsing rules
     parser = create_parser()
     # Run the parser to collect command-line arguments into a NAMESPACE called 'ns'
     ns = parser.parse_args(args)
-
     if not ns:
         parser.print_usage()
         sys.exit(1)
 
     file_list = ns.files
-
-    # option flag
     create_summary = ns.summaryfile
+    for file_ in file_list:
+        text = extract_names(file_)
+        if create_summary:
+            summary(text, file_ + ".summary")
+        else:
+            print('\n'.join(text))
 
     # For each filename, call `extract_names` with that single file.
     # Format the resulting list a vertical list (separated by newline \n)
